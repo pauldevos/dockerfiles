@@ -1,0 +1,30 @@
+version: '3'
+services:
+
+  postgres:
+    # For more details on configuring the Postgres Docker image, see:
+    #   https://hub.docker.com/_/postgres/
+    image: postgres:12.0-alpine
+
+    # Expose the default Postgres port on localhost
+    ports:
+      - '5432:5432'
+    network_mode: bridge # allow connections from the host computer
+    container_name: basketballdb
+
+    environment:
+      POSTGRES_USER: 'postgres'
+      POSTGRES_PASSWORD: 'postgres'
+      POSTGRES_DB: 'postgres'
+
+    # Copy files from dbinit into the image so that they will be run on boot
+    # This is where I populate the database for them!
+    volumes:
+      - ./initdb:/docker-entrypoint-initdb.d
+
+    # commands to run
+    # docker-compose -f filename.yaml up # this starts up the container
+    # docker-compose -f filename.yaml stop # this stops the container
+    # docker-compose -f filename.yaml down # this stops AND destroys the container - LOSE all info
+
+    

@@ -1,0 +1,66 @@
+version: '3'
+services:
+
+  pgadmin:
+    # For more details on configuring the pgadmin4 Docker image, see:
+    # https://hub.docker.com/r/dpage/pgadmin4/
+    image: dpage/pgadmin4
+
+    # Expose the web UI on localhost port 8080
+    ports:
+      - '8080:80'
+    # network_mode: bridge # Is this needed for 2 services in same script?
+    container_name: pgadmin4
+
+    # login into the pgadmin4 -- can be anything
+    environment:
+      PGADMIN_DEFAULT_EMAIL: 'admin@example.com'
+      PGADMIN_DEFAULT_PASSWORD: 'admin'
+    
+    # How do I make it where I can access volume data (e.g. backup DB, .sql files)
+    # without having to spin up the Docker VM and try to find the var/lib/docker files
+    volumes:
+      - pgadmin4:/var/lib/pgadmin
+      - ./sql:/var/lib/sql # Local path, maybe need absolute path?
+
+  postgres:
+    # For more details on configuring the Postgres Docker image, see:
+    # https://hub.docker.com/_/postgres/
+    image: postgres:12.0-alpine
+
+    # Expose the default Postgres port on localhost
+    # host_port:container_port
+    ports:
+      - '5432:5432'
+    # network_mode: bridge # allow connections from the host computer
+    container_name: basketballdb
+    # https://docs.docker.com/config/containers/start-containers-automatically/
+    restart: always 
+    environment:
+      POSTGRES_USER: 'postgres'
+      POSTGRES_PASSWORD: 'postgres'
+      POSTGRES_DB: 'postgres'
+      PGDATA: '/var/lib/postgresql/data' # be default, you can change, but make sure it is matched to your volume below
+    # # You can either specify it as a hash (no -) Or as an array, -, w/ = assignment rather than key:value
+    # POSTGRES_DB:test_db or - POSTGRES_DB=test_db 
+
+    # Copy files from dbinit into the image so that they will be run on boot
+    # This is where I populate the database for them!
+    volumes:
+      - ./data/:/var/lib/postgresql/data
+      - ./sql:/var/lib/postgresql/
+
+
+volumes:
+  nba-postgres:
+    external: true
+  pgadmin4:
+    external: true
+  
+
+
+# commands to run
+# docker-compose -d -f filename.yaml up -d # this starts up the container
+# docker-compose -d -f filename.yaml stop -d # this stops the container
+# docker-compose -d -f filename.yaml down -d # this stops AND destroys the container - LOSE all info
+# docker exec -it container_id bash # equiv of ssh'ing into container

@@ -1,0 +1,32 @@
+version: '3.1'
+services:
+
+  # call this whatever you want, the 'image' below is what defines your container service
+  postgres: 
+    # For more details on configuring the Postgres Docker image, see:
+    # https://hub.docker.com/_/postgres/
+    image: postgres:12.0-alpine
+
+    # Export and match ports: host_port:container_port
+    ports:
+      - 5432:5432 # using default postgres port
+
+    # giving container a name
+    container_name: basketballdb
+
+    restart: always 
+    environment:
+      POSTGRES_USER: 'postgres'
+      POSTGRES_PASSWORD: 'postgres'
+      POSTGRES_DB: 'postgres'
+      PGDATA: '/var/lib/postgresql/data' # be default, you can change, but make sure it is matched to your volume below
+    # # You can either specify it as a hash (no -) Or as an array, -, w/ = assignment rather than key:value
+    # POSTGRES_DB:test_db or - POSTGRES_DB=test_db
+
+    volumes:
+      # - ./database/:/var/lib/postgresql/data
+      - ./sql/:/var/lib/postgresql/sql
+      # Works on Mac/Linux! Need to figure out Path that works for Windows
+      - ~/.databases:/var/lib/postgresql/data
+
+  
