@@ -1,0 +1,50 @@
+version: '3'
+services:
+  database:
+    # For more details on configuring the Postgres Docker image, see:
+    # https://hub.docker.com/_/postgres/
+    image: postgres:12.0-alpine
+
+    # Expose the default Postgres port on localhost
+    # host_port:container_port
+    ports:
+      - '5432:5432'
+    # network_mode: bridge # allow connections from the host computer
+    container_name: db
+    # https://docs.docker.com/config/containers/start-containers-automatically/
+    restart: always
+    environment:
+      POSTGRES_USER: 'postgres'
+      POSTGRES_PASSWORD: 'postgres'
+      POSTGRES_DB: 'basketball'
+      PGDATA: '/var/lib/postgresql/data' # this is default, you can change, but make sure it is matched to your volume below
+    # # You can either specify it as a hash (no -) Or as an array, -, w/ = assignment rather than key:value
+    # POSTGRES_DB:test_db or - POSTGRES_DB=test_db
+
+    # Copy files from dbinit into the image so that they will be run on boot
+    # This is where I populate the database for them!
+    volumes:
+      - ~/database/data/:/var/lib/postgresql/data
+      - ~/database/sql:/var/lib/postgresql/
+# volumes:
+#   nba-postgres:
+#     external: true
+
+volumes:
+  postgres_basketball_db:
+    driver: local
+    external: true
+
+    version: '2'
+services:
+  db:
+    image: mysql
+    volumes:
+      - dbdata:/var/lib/mysql
+volumes:
+  dbdata:
+    driver: local
+    driver_opts:
+      type: 'none'
+      o: 'bind'
+      device: '/srv/db-data'
