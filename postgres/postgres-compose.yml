@@ -24,27 +24,22 @@ services:
     # Copy files from dbinit into the image so that they will be run on boot
     # This is where I populate the database for them!
     volumes:
-      - ~/database/data/:/var/lib/postgresql/data
+      - basketball_db:/var/lib/postgresql/data
       - ~/database/sql:/var/lib/postgresql/
 # volumes:
 #   nba-postgres:
 #     external: true
 
 volumes:
-  postgres_basketball_db:
+  basketball_db:
     driver: local
-    external: true
-
-    version: '2'
-services:
-  db:
-    image: mysql
-    volumes:
-      - dbdata:/var/lib/mysql
-volumes:
-  dbdata:
-    driver: local
-    driver_opts:
-      type: 'none'
-      o: 'bind'
-      device: '/srv/db-data'
+    external: true # must be created, docker-compose up will not create it
+    type: bind
+    source: ~/database/data/
+# volumes:
+#   dbdata:
+#     driver: local
+#     driver_opts:
+#       type: bind
+#       source: ~/database/data/
+#       device: /srv/db-data
